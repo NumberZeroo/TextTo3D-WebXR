@@ -1,5 +1,3 @@
-
-
 // UI handler
 document.getElementById('generateBtn').addEventListener('click', async () => {
     const prompt = document.getElementById('promptInput').value.trim();
@@ -13,6 +11,8 @@ document.getElementById('generateBtn').addEventListener('click', async () => {
         });
 
         if (!response.ok) throw new Error('Errore dal server');
+        else
+            console.log("the server is ok");
 
         const blob = await response.blob();
         const url = URL.createObjectURL(blob);
