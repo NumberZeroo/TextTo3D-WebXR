@@ -28,7 +28,7 @@ HF_TOKEN = ""  # ⚠️  solo test locale
 HOST = "localhost"
 PORT = 5000
 DEBUG = True
-DEVICE = torch.device("cpu")  # <— CPU obbligatoria
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ---------------------------------------------------------------------------
 # Flask & CORS
@@ -54,10 +54,9 @@ def _load_pipeline() -> "FluxPipeline":
         pipe = FluxPipeline.from_pretrained(
             "black-forest-labs/FLUX.1-schnell",
             use_auth_token=HF_TOKEN,
-            torch_dtype=torch.float32,  # CPU-friendly
-            device_map="balanced",   # forza tutti i pesi su CPU
-        )
-        pipe.to(DEVICE)
+            torch_dtype=torch.float16 if DEVICE.type == "cuda" else torch.float32,
+        ).to(DEVICE)
+
         logging.info("✅ Pipeline pronta in modalità CPU")
     return pipe
 
