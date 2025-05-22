@@ -1,0 +1,20 @@
+# Core per il backend Flask API
+flask
+flask-cors
+
+# Diffusers e modelli Hugging Face
+diffusers
+transformers
+huggingface_hub
+
+# Deep Learning (Torch con supporto CPU)
+torch
+
+# Ottimizzazioni opzionali per caricamento modello
+accelerate
+
+# Tokenizer per FLUX.1-schnell (usa SentencePiece)
+sentencepiece
+
+# Per compatibilità con tokenizer (evita bug con versioni future)
+protobuf<5
