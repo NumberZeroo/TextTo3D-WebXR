@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="eae8fb42-8075-4a6f-8fe4-04d20cac0a85" name="Changes" comment="fix: change cuda" />
+    <list default="true" id="eae8fb42-8075-4a6f-8fe4-04d20cac0a85" name="Changes" comment="fix: Added VR comp">
+      <change afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/TextTo3D-WebXR.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/TextTo3D-WebXR.iml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,6 +18,7 @@
       <list>
         <option value="HTML File" />
         <option value="JavaScript File" />
+        <option value="Python Script" />
       </list>
     </option>
   </component>
@@ -38,12 +42,12 @@
     &quot;assignee&quot;: &quot;NumberZeroo&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/NumberZeroo/TextTo3D-WebXR.git",
-    "accountId": "9cbe00ee-e44b-4304-8788-b2484245c998"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/NumberZeroo/TextTo3D-WebXR.git&quot;,
+    &quot;accountId&quot;: &quot;110ddbcb-aa3a-427b-b2fa-c7fcdcaef8dc&quot;
   }
-}]]></component>
+}</component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 2
 }</component>
@@ -58,19 +62,20 @@
     &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
     &quot;Node.js.main.js.executor&quot;: &quot;Run&quot;,
     &quot;Python.server.executor&quot;: &quot;Run&quot;,
+    &quot;Python.testCuda.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;main&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/mluke/Documents/TextTo3D-WebXR/ImageToText-WebXR&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Program Files/nodejs/node.exe&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_interpreter_path&quot;: &quot;C:/Users/mluke/AppData/Roaming/JetBrains/PyCharm2024.2/node/versions/22.16.0/node&quot;,
+    &quot;nodejs_interpreter_path&quot;: &quot;C:/Program Files/nodejs/node&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;settings.nodejs&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -90,8 +95,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23339.19" />
-        <option value="bundled-python-sdk-0029f7779945-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23339.19" />
+        <option value="bundled-js-predefined-1d06a55b98c1-0b3e54e931b4-JavaScript-PY-241.19416.19" />
+        <option value="bundled-python-sdk-337b0a7a993a-2767605e8bc2-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-241.19416.19" />
       </set>
     </attachedChunks>
   </component>
@@ -109,7 +114,12 @@
       <workItem from="1747914322993" duration="481000" />
       <workItem from="1747914835085" duration="13046000" />
       <workItem from="1747938888959" duration="649000" />
-      <workItem from="1747939563825" duration="2084000" />
+      <workItem from="1747939563825" duration="1697000" />
+      <workItem from="1748255001674" duration="671000" />
+      <workItem from="1748255685438" duration="2359000" />
+      <workItem from="1748261643148" duration="926000" />
+      <workItem from="1748262596121" duration="173000" />
+      <workItem from="1748262777267" duration="10769000" />
     </task>
     <task id="LOCAL-00001" summary="First Commit&#10;&#10;Feat: Starting point for Flux and WebXR">
       <option name="closed" value="true" />
@@ -119,15 +129,23 @@
       <option name="project" value="LOCAL" />
       <updated>1747922681009</updated>
     </task>
-    <task id="LOCAL-00002" summary="fix: change cuda">
+    <task id="LOCAL-00002" summary="fix: Improved performance">
       <option name="closed" value="true" />
-      <created>1747941610728</created>
+      <created>1748270042677</created>
       <option name="number" value="00002" />
       <option name="presentableId" value="LOCAL-00002" />
       <option name="project" value="LOCAL" />
-      <updated>1747941610728</updated>
+      <updated>1748270042677</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fix: Added VR comp">
+      <option name="closed" value="true" />
+      <created>1748273448332</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1748273448332</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -135,15 +153,17 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="First Commit&#10;&#10;Feat: Starting point for Flux and WebXR" />
-    <MESSAGE value="fix: change cuda" />
-    <option name="LAST_COMMIT_MESSAGE" value="fix: change cuda" />
+    <MESSAGE value="fix: Improved performance" />
+    <MESSAGE value="fix: Added VR comp" />
+    <option name="LAST_COMMIT_MESSAGE" value="fix: Added VR comp" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
     <select />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/TextTo3D_WebXR$testCuda.coverage" NAME="testCuda Coverage Results" MODIFIED="1748267303740" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/ImageToText_WebXR$server.coverage" NAME="server Coverage Results" MODIFIED="1747931654143" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/.venv/Scripts" />
-    <SUITE FILE_PATH="coverage/TextTo3D_WebXR$server.coverage" NAME="server Coverage Results" MODIFIED="1747941370975" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/TextTo3D_WebXR$server.coverage" NAME="server Coverage Results" MODIFIED="1748270268811" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>
