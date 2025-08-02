@@ -20,7 +20,7 @@ export function createScene() {
       'negz.jpg', // -Z (back)
     ]);
   scene.background = skybox;
-  scene.environment = skybox; // riflessi PBR
+  scene.environment = skybox;
 
   const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 1);
   scene.add(hemi);

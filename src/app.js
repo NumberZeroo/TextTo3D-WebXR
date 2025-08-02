@@ -64,6 +64,7 @@ export class App {
 
       loadGeneratedModel(finalPrompt, this.scene).then((model) => {
         this.generatedModel = model;
+        this.generatedModel.position.set(0, 0, -3);
       });
     });
 
@@ -87,18 +88,6 @@ export class App {
       this.uiGroup.quaternion.copy(cam.quaternion);
       this.uiGroup.translateZ(-1.2);
       this.uiGroup.translateY(-0.1);
-    }
-
-        // Modello segue la vista se presente
-    if (this.generatedModel) {
-      // calcola una posizione 2 m davanti agli occhi (direzione camera)
-      const headPos = new THREE.Vector3();
-      cam.getWorldPosition(headPos);
-      const headQuat = new THREE.Quaternion();
-      cam.getWorldQuaternion(headQuat);
-      const offsetDir = new THREE.Vector3(0, 0, -2).applyQuaternion(headQuat);
-      this.generatedModel.position.copy(headPos).add(offsetDir);
-      this.generatedModel.quaternion.copy(headQuat);
     }
 
     ThreeMeshUI.update();

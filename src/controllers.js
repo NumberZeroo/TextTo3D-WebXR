@@ -183,10 +183,16 @@ export function handleIntersections(renderer, interactive) {
 
       // ---- Haptic feedback --------------------------------------------
       const now = performance.now();
-      if (Math.abs(scaleFactor - (obj.userData.lastScaleFactor || scaleFactor)) > 0.02 &&
-          (!obj.userData.lastHapticTime || now - obj.userData.lastHapticTime > 100)) {
-        pulseController(c0, 0.1, 50);
-        pulseController(c1, 0.1, 50);
+      if (!obj.userData.lastHapticTime) {          // prima vibrazione immediata
+        //pulseController(c0, 0.1, 50);
+        //pulseController(c1, 0.1, 50);
+        obj.userData.lastHapticTime = now;
+        obj.userData.lastScaleFactor = scaleFactor;
+      } else if (Math.abs(scaleFactor - (obj.userData.lastScaleFactor || scaleFactor)) > 0.02 &&
+                 now - obj.userData.lastHapticTime > 100) {
+        // vibra ogni ±2 % con debounce 100 ms
+        //pulseController(c0, 0.1, 50);
+        //pulseController(c1, 0.1, 50);
         obj.userData.lastHapticTime = now;
         obj.userData.lastScaleFactor = scaleFactor;
       }
@@ -194,29 +200,23 @@ export function handleIntersections(renderer, interactive) {
   }
 }
 
-// Utility: simple pulse if haptic actuator available
-function pulseController(controller, strength = 0.5, duration = 60) {
-  // WebXR Gamepad haptics spec – access via inputSource.gamepad
-  const inputSource = controller.inputSource || controller.userData?.inputSource;
-  const gp = controller.gamepad || (controller.inputSource && controller.inputSource.gamepad);
+/*function pulseController(controller, strength = 0.4, duration = 60) {
+  // 1. ottieni SEMPRE il gamepad aggiornato
+  const index = controller.inputSource?.gamepad?.index;
+  const gp     = (index !== undefined) ? navigator.getGamepads()[index] : controller.gamepad;
   if (!gp) return;
 
-  // Try XR-compatible haptics first
-  if (gp.hapticActuators && gp.hapticActuators.length) {
-    try {
-      gp.hapticActuators[0].pulse(strength, duration);
-      return;
-    } catch (_) { /* ignore */ }
-  }
-  // Fallback for older Chrome versions
-  if (gp.vibrationActuator && gp.vibrationActuator.playEffect) {
-    try {
-      gp.vibrationActuator.playEffect('dual-rumble', {
-        startDelay: 0,
-        duration: duration,
-        weakMagnitude: strength,
-        strongMagnitude: strength,
-      });
-    } catch (_) { /* ignore */ }
-  }
-}
+  // 2. Nuova API standard
+  const act = gp.hapticActuators?.[0];
+  if (act?.pulse) { act.pulse(strength, duration).catch(()=>{}); return; }
+
+  // 3. Fallback legacy (Chrome <M114)
+  const vib = gp.vibrationActuator;
+  if (vib?.playEffect) {
+    vib.playEffect('dual-rumble', {
+      duration,
+      startDelay: 0,
+      strongMagnitude: strength,
+      weakMagnitude:  strength,
+    }).catch(()=>{});
+  }*/
