@@ -25,6 +25,29 @@ export class App {
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 50);
     this.camera.position.set(0, 1.6, 3);
 
+    /* ── Audio (lo‑fi loop) ────────────────────────────────────────────── */
+    this.audioListener = new THREE.AudioListener();
+    this.camera.add(this.audioListener);
+
+    this.bgm = new THREE.Audio(this.audioListener);
+    new THREE.AudioLoader().load('/assets/audio/audio1.mp3', (buffer) => {
+      this.bgm.setBuffer(buffer);
+      this.bgm.setLoop(true);
+      this.bgm.setVolume(0.3);
+    });
+
+    // auto‑play quando parte la sessione XR (gesture già avvenuta)
+    this.renderer.xr.addEventListener('sessionstart', () => {
+      if (this.bgm && !this.bgm.isPlaying) this.bgm.play();
+    });
+
+    // toggle dal pulsante MUTE
+    store.on('toggleSound', () => {
+      if (!this.bgm) return;
+      const muted = this.bgm.getVolume() === 0;
+      this.bgm.setVolume(muted ? 0.3 : 0);
+    });
+
     /* ── Scene & UI ─────────────────────────────────────────────────────── */
     this.scene   = createScene();
     this.uiGroup = createUI(this.scene, store);
@@ -66,17 +89,17 @@ export class App {
       this.uiGroup.translateY(-0.1);
     }
 
-    // Modello segue la vista se presente
-    if (this.generatedModel && !this.generatedModel.userData.isGrabbed) {
-        const headPos = new THREE.Vector3();
-        cam.getWorldPosition(headPos);
-        const headQuat = new THREE.Quaternion();
-        cam.getWorldQuaternion(headQuat);
-        const offsetDir = new THREE.Vector3(0, -1, -3).applyQuaternion(headQuat); // tuo offset
-        this.generatedModel.position.copy(headPos).add(offsetDir);
-        this.generatedModel.quaternion.copy(headQuat);
-}
-
+        // Modello segue la vista se presente
+    if (this.generatedModel) {
+      // calcola una posizione 2 m davanti agli occhi (direzione camera)
+      const headPos = new THREE.Vector3();
+      cam.getWorldPosition(headPos);
+      const headQuat = new THREE.Quaternion();
+      cam.getWorldQuaternion(headQuat);
+      const offsetDir = new THREE.Vector3(0, 0, -2).applyQuaternion(headQuat);
+      this.generatedModel.position.copy(headPos).add(offsetDir);
+      this.generatedModel.quaternion.copy(headQuat);
+    }
 
     ThreeMeshUI.update();
     handleIntersections(this.renderer, interactive);

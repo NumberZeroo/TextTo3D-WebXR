@@ -36,11 +36,35 @@ export function createUI(rootScene, store) {
   keyboard.position.set(0, -0.28, 0);
   root.add(keyboard);
 
-  // bottone INVIA ---------------------------------------------------------
+    // bottone INVIA ---------------------------------------------------------
   const submit = createSubmitButton(store);
   submit.position.set(0, -0.58, 0);
   root.add(submit);
   interactive.push(submit);
+
+  // bottone MUTE ---------------------------------------------------------
+  const muteBtn = new ThreeMeshUI.Block({
+    width: 0.32,
+    height: 0.09,
+    margin: 0.02,
+    justifyContent: 'center',
+    backgroundColor: new THREE.Color(0x888888),
+    fontFamily: FontJSON,
+    fontTexture: FontImage,
+  });
+  muteBtn.add(new ThreeMeshUI.Text({ content: 'Audio', fontSize: 0.04 }));
+  muteBtn.setupState({ state: 'idle', attributes: { offset: 0, backgroundColor: new THREE.Color(0x888888) } });
+  muteBtn.setupState({ state: 'hovered', attributes: { offset: -0.004, backgroundColor: new THREE.Color(0xaaaaaa) } });
+  muteBtn.setupState({
+    state: 'selected',
+    attributes: { offset: -0.008, backgroundColor: new THREE.Color(0x555555) },
+    onSet: () => {
+      store.emit('toggleSound');
+    },
+  });
+  muteBtn.position.set(0.7, 0, 0);
+  root.add(muteBtn);
+  interactive.push(muteBtn);
 
   return root; // ⬅︎ restituiamo il gruppo UI
 }
