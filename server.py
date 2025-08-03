@@ -25,7 +25,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-HF_TOKEN = "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"  # ⚠️  solo test locale
+HF_TOKEN = "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"
 HOST = "localhost"
 PORT = 5000
 DEBUG = True
