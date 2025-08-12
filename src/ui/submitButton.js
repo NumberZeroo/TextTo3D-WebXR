@@ -1,6 +1,3 @@
-/* ========================================================================== */
-/*  File: src/ui/submitButton.js                                             */
-/* ========================================================================== */
 import * as THREE from 'three';
 import ThreeMeshUI from 'three-mesh-ui';
 import { FontJSON, FontImage } from '../utils/constants.js';

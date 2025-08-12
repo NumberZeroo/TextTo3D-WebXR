@@ -1,6 +1,3 @@
-/* ========================================================================== */
-/*  File: src/ui/keyboard.js                                                 */
-/* ========================================================================== */
 import * as THREE from 'three';
 import ThreeMeshUI from 'three-mesh-ui';
 import { FontJSON, FontImage } from '../utils/constants.js';
@@ -15,7 +12,7 @@ export function createKeyboard(store, interactive) {
   keyboard.keys.forEach((keyBlock) => {
     keyBlock.userData.isPressed = false;
 
-    // Visual states -------------------------------------------------------
+    // Visual states
     keyBlock.setupState({ state: 'idle', attributes: { offset: 0, backgroundColor: new THREE.Color(0x444444) } });
     keyBlock.setupState({ state: 'hovered', attributes: { offset: -0.004, backgroundColor: new THREE.Color(0x666666) } });
     keyBlock.setupState({
@@ -32,7 +29,7 @@ export function createKeyboard(store, interactive) {
 
 function handleKey(keyBlock, store) {
   const info = keyBlock.info || {};
-  if (keyBlock.userData.isPressed) return; // debouncing per‑press
+  if (keyBlock.userData.isPressed) return;
   keyBlock.userData.isPressed = true;
 
   let typedText = store.get('typedText');

@@ -1,6 +1,3 @@
-/* ========================================================================== */
-/*  File: src/app.js                                                          */
-/* ========================================================================== */
 import * as THREE from 'three';
 import ThreeMeshUI from 'three-mesh-ui';
 import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
@@ -12,7 +9,7 @@ import store from './state.js';
 
 export class App {
   async init() {
-    /* ── Renderer ────────────────────────────────────────────────────────── */
+    /* Renderer  */
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     const DPR_CAP = 1.2;
@@ -21,11 +18,11 @@ export class App {
     document.body.appendChild(this.renderer.domElement);
     document.body.appendChild(VRButton.createButton(this.renderer));
 
-    /* ── Camera ─────────────────────────────────────────────────────────── */
+    /* Camera  */
     this.camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 50);
     this.camera.position.set(0, 1.6, 3);
 
-    /* ── Audio (lo‑fi loop) ────────────────────────────────────────────── */
+    /* Audio */
     this.audioListener = new THREE.AudioListener();
     this.camera.add(this.audioListener);
 
@@ -36,7 +33,7 @@ export class App {
       this.bgm.setVolume(0.3);
     });
 
-    // auto‑play quando parte la sessione XR (gesture già avvenuta)
+    // auto‑play
     this.renderer.xr.addEventListener('sessionstart', () => {
       if (this.bgm && !this.bgm.isPlaying) this.bgm.play();
     });
@@ -48,13 +45,12 @@ export class App {
       this.bgm.setVolume(muted ? 0.3 : 0);
     });
 
-    /* ── Scene & UI ─────────────────────────────────────────────────────── */
     this.scene   = createScene();
     this.uiGroup = createUI(this.scene, store);
 
     this.generatedModel = null; // riferimento al modello caricato
 
-    /* ── Model loading on submit ────────────────────────────────────────── */
+    /* Caricamento del modello */
     store.on('submit', (prompt) => {
       let finalPrompt = prompt;
       if (!finalPrompt && this.renderer.xr.isPresenting) finalPrompt = 'astronauta';
@@ -68,7 +64,7 @@ export class App {
       });
     });
 
-    /* ── XR Controllers ─────────────────────────────────────────────────── */
+    /* Controllers */
     setupControllers(this.renderer, this.scene, interactive);
 
     window.addEventListener('resize', () => this.onResize());
@@ -79,7 +75,7 @@ export class App {
   }
 
   loop() {
-    // riferimento alla camera attiva (monoscopic o XR)
+    // riferimento alla camera attiva
     const cam = this.renderer.xr.isPresenting ? this.renderer.xr.getCamera(this.camera) : this.camera;
 
     // UI segue la vista quando visibile

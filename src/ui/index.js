@@ -1,6 +1,3 @@
-/* ========================================================================== */
-/*  File: src/ui/index.js                                                    */
-/* ========================================================================== */
 import * as THREE from 'three';
 import ThreeMeshUI from 'three-mesh-ui';
 import { createKeyboard } from './keyboard.js';
@@ -15,7 +12,7 @@ export function createUI(rootScene, store) {
   root.name = 'uiRoot';
   rootScene.add(root);
 
-  // pannello testo --------------------------------------------------------
+  // pannello testo
   const panel = new ThreeMeshUI.Block({
     width: 1,
     height: 0.25,
@@ -31,18 +28,18 @@ export function createUI(rootScene, store) {
   panel.add(userText);
   store.on('typedText', (val) => userText.set({ content: val }));
 
-  // tastiera --------------------------------------------------------------
+  // tastiera
   const keyboard = createKeyboard(store, interactive);
   keyboard.position.set(0, -0.28, 0);
   root.add(keyboard);
 
-    // bottone INVIA ---------------------------------------------------------
+  // bottone INVIA
   const submit = createSubmitButton(store);
   submit.position.set(0, -0.58, 0);
   root.add(submit);
   interactive.push(submit);
 
-  // bottone MUTE ---------------------------------------------------------
+  // bottone MUTE
   const muteBtn = new ThreeMeshUI.Block({
     width: 0.32,
     height: 0.09,
@@ -66,5 +63,5 @@ export function createUI(rootScene, store) {
   root.add(muteBtn);
   interactive.push(muteBtn);
 
-  return root; // ⬅︎ restituiamo il gruppo UI
+  return root;
 }

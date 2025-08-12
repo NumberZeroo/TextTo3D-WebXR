@@ -1,14 +1,8 @@
-/* ========================================================================== */
-/*  File: src/scene/scene.js                                                  */
-/* ========================================================================== */
 import * as THREE from 'three';
 
 export function createScene() {
   const scene = new THREE.Scene();
 
-  /* --------------------------------------------------------------------- */
-  /* SKYBOX – Yokohama                                                     */
-  /* --------------------------------------------------------------------- */
   const skybox = new THREE.CubeTextureLoader()
     .setPath('/assets/skybox/skybox_chill/')
     .load([

@@ -1,6 +1,3 @@
-/* ========================================================================== */
-/*  File: src/controllers.js                                                 */
-/* ========================================================================== */
 import * as THREE from 'three';
 import { XRControllerModelFactory } from 'three/examples/jsm/webxr/XRControllerModelFactory.js';
 
@@ -51,7 +48,7 @@ export function setupControllers(renderer, scene, interactive) {
       checkTwoHandEnd(renderer);
     });
 
-    // Laser + modello mano -------------------------------------------------
+    // Laser + modello mano
     const line = new THREE.Line(
       new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]),
       new THREE.LineBasicMaterial({ color: 0xffffff })
@@ -66,9 +63,7 @@ export function setupControllers(renderer, scene, interactive) {
   }
 }
 
-/* ------------------------------------------------------------------------- */
-/* Grab logic                                                                 */
-/* ------------------------------------------------------------------------- */
+/* Grab logic */
 function attemptGrab(controller, scene) {
   tempMatrix.identity().extractRotation(controller.matrixWorld);
   raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
@@ -155,7 +150,7 @@ export function handleIntersections(renderer, interactive) {
     if (target.userData.isPressed) pressedThis.add(target);
   }
 
-  // reset tastiera --------------------------------------------------------
+  // reset tastiera
   interactive.forEach((obj) => {
     if (obj.userData.isPressed && !pressedThis.has(obj)) {
       obj.userData.isPressed = false;
@@ -168,7 +163,7 @@ export function handleIntersections(renderer, interactive) {
     }
   });
 
-  // -------------------------------- two‑hand scale -----------------------
+  // two‑hand scale
   if (twoHandScaleActive) {
     const c0 = renderer.xr.getController(0);
     const c1 = renderer.xr.getController(1);

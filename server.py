@@ -124,7 +124,7 @@ def generate_3d_model(prompt: str) -> Path:
     return glb_path
 
 # ---------------------------------------------------------------------------
-# Route: /generate3d
+# Route: /generate
 # ---------------------------------------------------------------------------
 @app.route("/generate", methods=["POST", "OPTIONS"])
 @cross_origin()
@@ -158,6 +158,6 @@ def generate3d():
 # Entrypoint
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
-    logging.info("Back‑end → http://%s:%s", HOST, PORT)
+    logging.info("Back‑end su http://%s:%s", HOST, PORT)
     _load_pipeline()  # Warm-up
     app.run(host=HOST, port=PORT, debug=False, use_reloader=False)
