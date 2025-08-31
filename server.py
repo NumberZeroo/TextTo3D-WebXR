@@ -262,6 +262,100 @@ def merge_with_unirig(source_fbx: Path, target_mesh: Path, out_path: Path) -> Pa
         raise FileNotFoundError(f"Output atteso non trovato: {out_path}")
     return out_path
 
+def reapply_materials_no_blender(src_glb_with_materials: Path, dst_glb_rigged: Path, out_glb_colored: Path) -> Path:
+    """
+    Ricopia materiali/texture dal GLB originale (con materiali) al GLB riggato, senza usare Blender.
+    Strategia: match per indice (mesh i, primitive j). Copia arrays: samplers, images, textures, materials
+    dal sorgente e riassegna gli indici sui primitive del target. Salva GLB finale con le risorse embeddate.
+    """
+    try:
+        from pygltflib import GLTF2, BufferFormat, Image, Texture, Material, Sampler
+    except ImportError:
+        raise RuntimeError("pygltflib non installato. Esegui: pip install pygltflib")
+
+    if not src_glb_with_materials.exists():
+        raise FileNotFoundError(f"Sorgente con materiali non trovato: {src_glb_with_materials}")
+    if not dst_glb_rigged.exists():
+        raise FileNotFoundError(f"Bersaglio riggato non trovato: {dst_glb_rigged}")
+
+    out_glb_colored.parent.mkdir(parents=True, exist_ok=True)
+
+    # Carica i due GLB
+    src = GLTF2().load_binary(str(src_glb_with_materials))
+    dst = GLTF2().load_binary(str(dst_glb_rigged))
+
+    # Se il sorgente non ha materiali, non possiamo fare nulla
+    if not src.materials or len(src.materials) == 0:
+        # Salva una copia del rigged così com'è
+        dst.save_binary(str(out_glb_colored))
+        return out_glb_colored
+
+    # --- Copia risorse di shading dal sorgente ---
+    # Nota: manteniamo l'ordine del sorgente e sovrascriviamo quello del target
+    dst.samplers  = src.samplers  or []
+    dst.images    = src.images    or []
+    dst.textures  = src.textures  or []
+    dst.materials = src.materials or []
+
+    # Assicurati che i bufferView delle immagini esistano nel dst
+    # (in pratica ricopiamo anche buffer/bufferViews del sorgente se servono)
+    # Semplificazione: se il sorgente ha più buffers/bufferViews che il target, li estendiamo.
+    # Questo copre i casi comuni dove le texture sono embeddate.
+    if src.bufferViews:
+        if not dst.bufferViews:
+            dst.bufferViews = []
+        # Evita conflitti di indice: append semplice
+        base_bv = len(dst.bufferViews)
+        dst.bufferViews.extend(src.bufferViews)
+
+        # Fix indices in images -> bufferView
+        if dst.images:
+            for img in dst.images:
+                if getattr(img, "bufferView", None) is not None and img.bufferView < 0:
+                    img.bufferView = None  # safety
+        if src.images:
+            for i, s_img in enumerate(src.images):
+                if s_img.bufferView is not None:
+                    # punta alla nuova posizione (append alla fine)
+                    dst.images[i].bufferView = base_bv + s_img.bufferView
+                    dst.images[i].mimeType = s_img.mimeType
+
+    if src.buffers:
+        if not dst.buffers:
+            dst.buffers = []
+        # Append del/i buffer contenente/i le immagini
+        dst.buffers.extend(src.buffers)
+
+    # --- Riassegna materiali per (mesh, primitive) by index ---
+    # Usa la stessa coppia (mesh_idx, prim_idx) del sorgente come "donatore" del material index
+    def collect_prim_mats(gltf: GLTF2):
+        mats = {}  # (mesh_idx, prim_idx) -> material_index (o None)
+        if not gltf.meshes:
+            return mats
+        for mi, mesh in enumerate(gltf.meshes):
+            if not mesh.primitives:
+                continue
+            for pi, prim in enumerate(mesh.primitives):
+                mats[(mi, pi)] = getattr(prim, "material", None)
+        return mats
+
+    src_mats = collect_prim_mats(src)
+    if dst.meshes:
+        for mi, mesh in enumerate(dst.meshes):
+            if not mesh.primitives:
+                continue
+            for pi, prim in enumerate(mesh.primitives):
+                donor = src_mats.get((mi, pi), None)
+                if donor is not None:
+                    prim.material = donor  # assegna l’indice del materiale del sorgente
+
+    # Salva GLB con tutto embed
+    dst.save_binary(str(out_glb_colored))
+    if not out_glb_colored.exists():
+        raise FileNotFoundError(f"GLB colorato atteso non trovato: {out_glb_colored}")
+    return out_glb_colored
+
+
 # ---------------------------------------------------------------------------
 # Route: /generate
 # ---------------------------------------------------------------------------
@@ -293,6 +387,10 @@ def generate3d():
             merged_glb = glb_path.with_name(glb_path.stem + "_rigged.glb")
             merge_with_unirig(skinned_fbx, glb_path, merged_glb)
 
+            #Step 4: Colori
+            #colored_glb = glb_path.with_name(glb_path.stem + "_rigged_colored.glb")
+            #reapply_materials_no_blender(glb_path, merged_glb, colored_glb)
+
         except subprocess.CalledProcessError as e:
             logging.error("Errore UniRig: %s", e)
             return jsonify({"error": f"Errore UniRig: {e}"}), 500
@@ -300,7 +398,7 @@ def generate3d():
 
         # Risposta invariata: ritorniamo comunque il GLB come in origine
         return send_file(
-            glb_path,
+            merged_glb,
             mimetype="model/gltf-binary",
             as_attachment=True,
             download_name="model.glb"
