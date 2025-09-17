@@ -60,6 +60,16 @@ export function setupControllers(renderer, scene, interactive) {
     const grip = renderer.xr.getControllerGrip(i);
     grip.add(factory.createControllerModel(grip));
     scene.add(controller, grip);
+
+    //La ui "uiRoot" appare solo al click del grip del controller destro
+    if(i===0){
+        controller.addEventListener('squeezestart', () => {
+            if(scene.getObjectByName('uiRoot')){
+              scene.getObjectByName('uiRoot').visible = !scene.getObjectByName('uiRoot').visible;
+            }
+        }
+    );
+    }
   }
 }
 

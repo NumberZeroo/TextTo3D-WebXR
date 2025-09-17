@@ -63,5 +63,29 @@ export function createUI(rootScene, store) {
   root.add(muteBtn);
   interactive.push(muteBtn);
 
+  //Bottone per passare da VR ad AR
+    const arVrBtn = new ThreeMeshUI.Block({
+    width: 0.32,
+    height: 0.09,
+    margin: 0.02,
+    justifyContent: 'center',
+    backgroundColor: new THREE.Color(0x888888),
+    fontFamily: FontJSON,
+    fontTexture: FontImage,
+    });
+    arVrBtn.add(new ThreeMeshUI.Text({ content: 'AR/VR', fontSize: 0.04 }));
+    arVrBtn.setupState({ state: 'idle', attributes: { offset: 0, backgroundColor: new THREE.Color(0x888888) } });
+    arVrBtn.setupState({ state: 'hovered', attributes: { offset: -0.004, backgroundColor: new THREE.Color(0xaaaaaa) } });
+    arVrBtn.setupState({
+    state: 'selected',
+    attributes: { offset: -0.008, backgroundColor: new THREE.Color(0x555555) },
+    onSet: () => {
+        store.emit('toggleARVR');
+    }
+    });
+    arVrBtn.position.set(0.7, -0.12, 0);
+    root.add(arVrBtn);
+    interactive.push(arVrBtn);
+
   return root;
 }
