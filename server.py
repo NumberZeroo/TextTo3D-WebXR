@@ -27,7 +27,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-HF_TOKEN_FLUX = ""
+HF_TOKEN_FLUX = "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"
 HOST = "localhost"
 PORT = 5000
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -39,17 +39,15 @@ UNIRIG_REPO_ROOT = Path(__file__).parent / "UniRig"
 GIT_BASH = Path(os.getenv("GIT_BASH", r"C:\Program Files\Git\bin\bash.exe"))  # path di bash.exe (Git for Windows)
 UNIRIG_SEED = int(os.getenv("UNIRIG_SEED", "42"))
 
-# Dì a Bash come attivare conda (modifica il path se necessario)
+# Dì a Bash come attivare conda
 CONDA_SH = Path(r"C:\Users\mluke\miniconda3\etc\profile.d\conda.sh")
-
-# ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
 # Flask & CORS
 # ---------------------------------------------------------------------------
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, methods=["GET", "POST", "OPTIONS"],
-     allow_headers=["Content-Type"], max_age=86400)
+     allow_headers=["Content-Type"], max_age=86400, expose_headers=["X-Model-Id"],)
 
 # ---------------------------------------------------------------------------
 # Lazy-loaded pipeline
@@ -110,7 +108,7 @@ def generate_3d_model(prompt: str) -> Path:
     output_dir.mkdir(parents=True, exist_ok=True)
     image.save(image_path)
 
-    print("📏 Risoluzione immagine:", image.size)
+    print("Risoluzione immagine:", image.size)
 
     # 3. Chiamata a stable-fast-3d/run.py via subprocess
     logging.info("🛠 Lancio stable-fast-3d su immagine salvata…")
@@ -173,9 +171,9 @@ def rig_with_unirig(input_glb: Path, out_fbx: Path, seed: int = UNIRIG_SEED) -> 
         f'--input "{in_posix}" --output "{out_posix}" --seed {seed}'
     )
 
-    logging.info("🦴 Avvio UniRig (env=%s) per il rig…", UNIRIG_ENV)
+    logging.info("Avvio UniRig (env=%s) per il rig…", UNIRIG_ENV)
     subprocess.run([str(GIT_BASH), "-lc", bash_line], check=True)
-    logging.info("✅ UniRig completato: %s", out_fbx)
+    logging.info("UniRig completato: %s", out_fbx)
 
     if not out_fbx.exists():
         raise FileNotFoundError(f"FBX atteso non trovato: {out_fbx}")
@@ -211,9 +209,9 @@ def skin_with_unirig(input_fbx: Path, out_fbx: Path) -> Path:
         f'--input "{in_posix}" --output "{out_posix}"'
     )
 
-    logging.info("🎨 Avvio UniRig skinning…")
+    logging.info("Avvio UniRig skinning…")
     subprocess.run([str(GIT_BASH), "-lc", bash_line], check=True)
-    logging.info("✅ UniRig skinning completato: %s", out_fbx)
+    logging.info("UniRig skinning completato: %s", out_fbx)
 
     if not out_fbx.exists():
         raise FileNotFoundError(f"FBX skinnato atteso non trovato: {out_fbx}")
@@ -254,9 +252,9 @@ def merge_with_unirig(source_fbx: Path, target_mesh: Path, out_path: Path) -> Pa
         f'--source "{src_posix}" --target "{tgt_posix}" --output "{out_posix}"'
     )
 
-    logging.info("🔗 Avvio UniRig merge (source=%s, target=%s)…", source_fbx.name, target_mesh.name)
+    logging.info("Avvio UniRig merge (source=%s, target=%s)…", source_fbx.name, target_mesh.name)
     subprocess.run([str(GIT_BASH), "-lc", bash_line], check=True)
-    logging.info("✅ UniRig merge completato: %s", out_path)
+    logging.info("UniRig merge completato: %s", out_path)
 
     if not out_path.exists():
         raise FileNotFoundError(f"Output atteso non trovato: {out_path}")
@@ -387,6 +385,14 @@ def generate3d():
             merged_glb = glb_path.with_name(glb_path.stem + "_rigged.glb")
             merge_with_unirig(skinned_fbx, glb_path, merged_glb)
 
+            #Salviamo l'id del modello
+            try:
+               model_id = glb_path.parent.parent.name
+               if model_id.endswith("_out"):
+                   model_id = model_id[:-4]
+            except Exception:
+               model_id = glb_path.stem
+
             #Step 4: Colori
             #colored_glb = glb_path.with_name(glb_path.stem + "_rigged_colored.glb")
             #reapply_materials_no_blender(glb_path, merged_glb, colored_glb)
@@ -397,12 +403,15 @@ def generate3d():
         # ---------------------------------------------------------------------------
 
         # Risposta invariata: ritorniamo comunque il GLB come in origine
-        return send_file(
+        response = send_file(
             merged_glb,
             mimetype="model/gltf-binary",
             as_attachment=True,
-            download_name="model.glb"
+            download_name="model.glb",
         )
+
+        response.headers["X-Model-Id"] = model_id
+        return response
 
     except subprocess.CalledProcessError as e:
         logging.error("Errore SF3D: %s", e)
@@ -411,10 +420,32 @@ def generate3d():
         logging.exception("Errore generale: %s", exc)
         return jsonify({"error": str(exc)}), 500
 
+@app.route("/models/<model_id>", methods=["GET"])
+def get_saved_model(model_id):
+    folder = TEMP_DIR  # = Path("temp_assets")
+
+    # cerchiamo il file riggato finale
+    candidates = list(folder.glob(f"{model_id}_out/**/mesh_rigged*.glb")) + \
+                 list(folder.glob(f"{model_id}_out/**/mesh_rigged.glb")) + \
+                 list(folder.glob(f"{model_id}_out/**/mesh.glb"))
+
+
+    if not candidates:
+        return jsonify({"error": "Modello non trovato"}), 404
+
+    path = candidates[0]
+    return send_file(path, mimetype="model/gltf-binary")
+
+# AGGIUNGERE REQUESTTT
+@app.route("/generate3dOnly", methods=["POST", "OPTIONS"])
+@cross_origin()
+def generate3dOnly():
+    if request.method == "OPTIONS":
+        return "", 204
 # ---------------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------------
 if __name__ == "__main__":
     logging.info("Back-end su http://%s:%s", HOST, PORT)
     _load_pipeline()  # Warm-up
-    app.run(host=HOST, port=PORT, debug=False, use_reloader=False)
+    app.run(host="0.0.0.0", port=PORT, debug=False, use_reloader=False)
