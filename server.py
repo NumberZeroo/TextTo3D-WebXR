@@ -27,7 +27,7 @@ logging.basicConfig(
     datefmt="%H:%M:%S",
 )
 
-HF_TOKEN_FLUX = "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"
+HF_TOKEN_FLUX = "" #Aggiungere token
 HOST = "localhost"
 PORT = 5000
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
