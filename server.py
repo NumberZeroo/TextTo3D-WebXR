@@ -436,12 +436,43 @@ def get_saved_model(model_id):
     path = candidates[0]
     return send_file(path, mimetype="model/gltf-binary")
 
-# AGGIUNGERE REQUESTTT
 @app.route("/generate3dOnly", methods=["POST", "OPTIONS"])
 @cross_origin()
 def generate3dOnly():
     if request.method == "OPTIONS":
         return "", 204
+
+    data = request.get_json(silent=True) or {}
+    prompt = data.get("prompt", "")
+    if not prompt:
+        return jsonify({"error": "Prompt mancante"}), 400
+
+    try:
+        glb_path = generate_3d_model(prompt)
+
+        try:
+            model_id = glb_path.parent.parent.name
+            if model_id.endswith("_out"):
+                model_id = model_id[:-4]
+        except Exception:
+            model_id = glb_path.stem
+
+    except subprocess.CalledProcessError as e:
+        logging.error("Errore UniRig: %s", e)
+        return jsonify({"error": f"Errore UniRig: {e}"}), 500
+        # ---------------------------------------------------------------------------
+
+        # Risposta invariata: ritorniamo comunque il GLB come in origine
+    response = send_file(
+        glb_path,
+        mimetype="model/gltf-binary",
+        as_attachment=True,
+        download_name="model.glb",
+    )
+
+    response.headers["X-Model-Id"] = model_id
+    return response
+
 # ---------------------------------------------------------------------------
 # Entrypoint
 # ---------------------------------------------------------------------------
