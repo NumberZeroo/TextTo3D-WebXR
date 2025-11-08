@@ -33,13 +33,13 @@ PORT = 5000
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # --- UniRig rigging integration ------------------------------------------------
-# Config di esecuzione per UniRig (Opzione B: usare gli .sh via conda + Git Bash)
+# Config di esecuzione per UniRig
 UNIRIG_ENV = os.getenv("UNIRIG_ENV", "unirig")  # nome env conda indicato da te
 UNIRIG_REPO_ROOT = Path(__file__).parent / "UniRig"
 GIT_BASH = Path(os.getenv("GIT_BASH", r"C:\Program Files\Git\bin\bash.exe"))  # path di bash.exe (Git for Windows)
 UNIRIG_SEED = int(os.getenv("UNIRIG_SEED", "42"))
 
-# Dì a Bash come attivare conda
+# Dì a Bash come attivare conda, da modificare hard-coded
 CONDA_SH = Path(r"C:\Users\mluke\miniconda3\etc\profile.d\conda.sh")
 
 # ---------------------------------------------------------------------------
@@ -289,16 +289,11 @@ def reapply_materials_no_blender(src_glb_with_materials: Path, dst_glb_rigged: P
         return out_glb_colored
 
     # --- Copia risorse di shading dal sorgente ---
-    # Nota: manteniamo l'ordine del sorgente e sovrascriviamo quello del target
     dst.samplers  = src.samplers  or []
     dst.images    = src.images    or []
     dst.textures  = src.textures  or []
     dst.materials = src.materials or []
 
-    # Assicurati che i bufferView delle immagini esistano nel dst
-    # (in pratica ricopiamo anche buffer/bufferViews del sorgente se servono)
-    # Semplificazione: se il sorgente ha più buffers/bufferViews che il target, li estendiamo.
-    # Questo copre i casi comuni dove le texture sono embeddate.
     if src.bufferViews:
         if not dst.bufferViews:
             dst.bufferViews = []
@@ -393,10 +388,6 @@ def generate3d():
             except Exception:
                model_id = glb_path.stem
 
-            #Step 4: Colori
-            #colored_glb = glb_path.with_name(glb_path.stem + "_rigged_colored.glb")
-            #reapply_materials_no_blender(glb_path, merged_glb, colored_glb)
-
         except subprocess.CalledProcessError as e:
             logging.error("Errore UniRig: %s", e)
             return jsonify({"error": f"Errore UniRig: {e}"}), 500
@@ -460,9 +451,7 @@ def generate3dOnly():
     except subprocess.CalledProcessError as e:
         logging.error("Errore UniRig: %s", e)
         return jsonify({"error": f"Errore UniRig: {e}"}), 500
-        # ---------------------------------------------------------------------------
 
-        # Risposta invariata: ritorniamo comunque il GLB come in origine
     response = send_file(
         glb_path,
         mimetype="model/gltf-binary",
