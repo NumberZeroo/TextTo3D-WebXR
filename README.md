@@ -31,13 +31,31 @@ conda activate unirig
 Navigate into UniRig repo and install the requirements.
 
 ## Frontend
+
+There are two available frontend versions:
+
+1. Main frontend (included in this repository), developed with three.js.
+
+This is the default frontend already present here.
 ```
 npm install
+vite
 ```
+
+2. Alternative frontend, developed with Meta Immersive Web SDK.
+
+This version is located in a separate repository
+```
+git clone https://github.com/NumberZeroo/IWSDK-test.git
+cd IWSDK-test
+npm install
+npm run dev
+```
+
 ## Usage
 ```
-1. Use the virtual keyboard to type a prompt
-2. Wait for the pipeline (image → 3D model → rigging)
-3. Enter VR/WebXR mode
-4. Move and resize the model freely
+1. Enter VR/WebXR mode
+2. Use the virtual keyboard to type a prompt
+3. Wait for the pipeline (image → 3D model → rigging)
+4. Enjoy!
 ```
